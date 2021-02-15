@@ -68,7 +68,7 @@ public class Imdb {
     }
 
     // check if there exists any actor and director combination for 3 title type, If it exists, write each combination as a new line to a file
-	public static class ActorDirectorReducer extends Reducer<Text, Text, Text, Text> {
+    public static class ActorDirectorReducer extends Reducer<Text, Text, Text, Text> {
         @Override
         public void reduce ( Text key, Iterable<Text> values, Context context )
                            throws IOException, InterruptedException {
@@ -92,7 +92,7 @@ public class Imdb {
                     type = lineValues[0];
                     name = lineValues[1];
                     if (lineValues.length > 2) {
-                    	year = lineValues[2];
+                        year = lineValues[2];
                         if (lineValues.length > 3)
                             genre = lineValues[3];
                     }
@@ -114,10 +114,10 @@ public class Imdb {
             }
             if (present) {
                 if (actorIds.size() > 0 && directorIds.size() > 0) {
-                	// int temp = 0;
+                    // int temp = 0;
                     for (int i = 0;i < directorIds.size();i++) {
                         if (actorIds.contains(directorIds.get(i))) {
-                        	// temp += 1;
+                            // temp += 1;
                             int index = actorIds.indexOf(directorIds.get(i));
                             String actorName = actorNames.get(index);
                             String result = "    " + name + "    " + actorName + "    " + year + "    " + genre;
@@ -127,7 +127,7 @@ public class Imdb {
                     }
                 }
             }
-		}
+        }
     }
 
     // Take input from output of reducer 2, Emit title type as key and 1 as value
@@ -197,26 +197,26 @@ public class Imdb {
         }
     }
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         // read from 3 files and select movies where actor and director are same
-	    Configuration conf = new Configuration();
-	    Job job = Job.getInstance(conf, "actor director");
-	    job.setJarByClass(Imdb.class);
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "actor director");
+        job.setJarByClass(Imdb.class);
         job.setNumReduceTasks(3);
-	    job.setReducerClass(ActorDirectorReducer.class);
-	    job.setOutputKeyClass(Text.class);
-	    job.setOutputValueClass(Text.class);
-	    job.setOutputFormatClass(TextOutputFormat.class);
-	    MultipleInputs.addInputPath(job,new Path(args[0]),TextInputFormat.class,ReadTitlesMapper.class);
+        job.setReducerClass(ActorDirectorReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
+        MultipleInputs.addInputPath(job,new Path(args[0]),TextInputFormat.class,ReadTitlesMapper.class);
         MultipleInputs.addInputPath(job,new Path(args[1]),TextInputFormat.class,ReadActorsMapper.class);
         MultipleInputs.addInputPath(job,new Path(args[2]),TextInputFormat.class,ReadDirectorsMapper.class);
         // conf.set("mapreduce.job.maps", "4");
-	    FileOutputFormat.setOutputPath(job, new Path(args[3]+"inter"));
-	    job.waitForCompletion(true);
+        FileOutputFormat.setOutputPath(job, new Path(args[3]+"inter"));
+        job.waitForCompletion(true);
 
         // count the number of times where actor and director for each title type is same
-	    Job jobTwo = Job.getInstance(conf, "actor director count");
+        Job jobTwo = Job.getInstance(conf, "actor director count");
         // jobTwo.setJobName("MyJob2");
         jobTwo.setJarByClass(Imdb.class);
         // jobTwo.setNumReduceTasks(3);
@@ -243,6 +243,6 @@ public class Imdb {
         FileInputFormat.setInputPaths(jobThree, new Path(args[0]));
         FileOutputFormat.setOutputPath(jobThree, new Path(args[3]+"bonus"));
         jobThree.waitForCompletion(true);
-	}
+    }
 
 }
