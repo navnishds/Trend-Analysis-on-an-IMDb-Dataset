@@ -1,0 +1,33 @@
+#!/bin/bash
+#SBATCH -A uot165
+#SBATCH --job-name="imdb"
+#SBATCH --output="imdb.distr.out"
+#SBATCH --partition=compute
+## allocate 3 nodes for the Hadoop cluster: 3 datanodes, from which 1 is namenode
+#SBATCH --nodes=3
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=5G
+#SBATCH --export=ALL 
+#SBATCH --time=60
+
+export HADOOP_CONF_DIR=/home/$USER/cometcluster
+module load hadoop/2.6.0
+export JAVA_HOME=/lib/jvm/java
+myhadoop-configure.sh
+start-dfs.sh
+start-yarn.sh
+
+hdfs dfs -mkdir -p /user/$USER
+hdfs dfs -put IMDB_TITLES.txt /user/$USER/IMDB_TITLES.txt
+hdfs dfs -put IMDB_ACTORS.txt /user/$USER/IMDB_ACTORS.txt
+hdfs dfs -put IMDB_DIRECTORS.txt /user/$USER/IMDB_DIRECTORS.txt
+hadoop jar imdb.jar Imdb /user/$USER/IMDB_TITLES.txt /user/$USER/IMDB_ACTORS.txt /user/$USER/IMDB_DIRECTORS.txt /user/$USER/output
+rm -rf output-distr
+mkdir output-distr
+mkdir output-distr-inter
+hdfs dfs -get /user/$USER/outputinter/part* output-distr-inter
+hdfs dfs -get /user/$USER/output/part* output-distr
+
+stop-yarn.sh
+stop-dfs.sh
+myhadoop-cleanup.sh
