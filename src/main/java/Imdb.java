@@ -39,7 +39,7 @@ public class Imdb {
         }
     }
 
-    // Read from IMDB_ACOTRS.txt file
+    // Read from IMDB_ACTORS.txt file
     public static class ReadActorsMapper extends Mapper<Object, Text, Text, Text> {
         @Override
         public void map ( Object key, Text value, Context context )
